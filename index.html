@@ -52,26 +52,38 @@
   <p id="mensagem"></p>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbz-NXmfO-ZrFZ_N0OCB3DA5b97DoT3bsVNWBFRnwlQqKrblrJrKgPt9NH4NfZriYctk/exec";
+    const scriptURL = "COLE_AQUI_A_URL_DO_SEU_WEB_APP";
 
     const form = document.getElementById("form-agendamento");
 
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
-      const formData = new FormData(form);
+      const dados = {
+        nome: form.nome.value,
+        telefone: form.telefone.value,
+        servico: form.servico.value,
+        data: form.data.value,
+        hora: form.hora.value
+      };
 
       fetch(scriptURL, {
         method: "POST",
-        body: formData
+        body: JSON.stringify(dados),
+        headers: { "Content-Type": "application/json" }
       })
-      .then(response => {
-        document.getElementById("mensagem").innerText = "✅ Agendamento realizado com sucesso!";
-        form.reset();
+      .then(response => response.json())
+      .then(res => {
+        if(res.status === "sucesso"){
+          document.getElementById("mensagem").innerText = "✅ Agendamento realizado com sucesso!";
+          form.reset();
+        } else {
+          document.getElementById("mensagem").innerText = "❌ Erro: " + res.mensagem;
+        }
       })
-      .catch(error => {
+      .catch(err => {
         document.getElementById("mensagem").innerText = "❌ Erro ao agendar. Tente novamente.";
-        console.error("Erro:", error);
+        console.error("Erro:", err);
       });
     });
   </script>
