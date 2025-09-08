@@ -54,6 +54,9 @@
   <script>
     const form = document.getElementById("form-agendamento");
 
+    // Coloque aqui a URL do seu Web App publicado no Apps Script
+    const WEB_APP_URL = "https://script.google.com/macros/sAKfycbw4_aTmCrJK6GZxirxy7xRI5_F_KgLIJHmtbISofLtaXAVCcdiA4ZfN_4FZX6u06bC7/exec";
+
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
@@ -65,15 +68,26 @@
         hora: form.hora.value
       };
 
-      google.script.run
-        .withSuccessHandler(() => {
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify(dados),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => response.json())
+      .then(res => {
+        if(res.status === "sucesso") {
           document.getElementById("mensagem").innerText = "✅ Agendamento realizado com sucesso!";
           form.reset();
-        })
-        .withFailureHandler(err => {
-          document.getElementById("mensagem").innerText = "❌ Erro ao agendar: " + err.message;
-        })
-        .gravarDados(dados);
+        } else {
+          document.getElementById("mensagem").innerText = "❌ Erro: " + res.mensagem;
+        }
+      })
+      .catch(err => {
+        document.getElementById("mensagem").innerText = "❌ Erro ao agendar. Tente novamente.";
+        console.error(err);
+      });
     });
   </script>
 </body>
